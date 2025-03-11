@@ -42,7 +42,7 @@
 # GNU General Public License for more details.
 
 SCRIPT_NAME="install-driver.sh"
-SCRIPT_VERSION="20250224"
+SCRIPT_VERSION="20250311"
 
 MODULE_NAME="8852bu"
 
@@ -111,25 +111,29 @@ if ! command -v "${TEXT_EDITOR}" >/dev/null 2>&1; then
 	exit 1
 fi
 
-echo ": -------------------------------------------------------------"
 
+echo "-------------------------------------------------------------"
 # display notice
-echo ": Please copy and post all lines below when reporting an issue!"
-
-
-echo ": -------------------------------------------------------------"
-
+echo "Please copy and post all lines below when reporting an issue!"
+echo "-------------------------------------------------------------"
 
 # displays script name and version
-echo ": ${SCRIPT_NAME} v${SCRIPT_VERSION}"
+echo "${SCRIPT_NAME} v${SCRIPT_VERSION}"
 
+# display distro info
+lsb_release -id | grep D
+
+# display kernel version
+echo "Kernel version: ${KVER}"
+
+# display kernel parameters
+sed 's/root=[^ ]*//;s/[ ]\+/, /g;s/^BOOT_IMAGE=[^ ]*/Parameters:/' /proc/cmdline
 
 # display kernel architecture
-echo ": ${KARCH} (kernel architecture)"
-
+echo "Kernel ARCH: ${KARCH}"
 
 # display architecture to send to gcc
-echo ": ${GARCH} (architecture to send to gcc)"
+#echo ": ${GARCH} (architecture to send to gcc)"
 
 
 SMEM=$(LC_ALL=C free | awk '/Mem:/ { print $2 }')
@@ -146,45 +150,35 @@ if [ "$sproc" -gt 1 ]; then
 	fi
 fi
 
-
 # display number of in-use processing units / total processing units
-echo ": ${sproc}/$(nproc) (in-use/total processing units)"
-
+echo "Processing units: ${sproc}/$(nproc) (in-use/total)"
 
 # display total system memory
-echo ": ${SMEM} (total system memory)"
-
-
-# display kernel version
-echo ": ${KVER} (kernel version)"
-
+echo "Memory: ${SMEM}"
 
 # display version of gcc used to compile the kernel
 gcc_ver_used_to_compile_the_kernel=$(cat /proc/version | sed 's/^.*gcc/gcc/' | sed 's/\s.*$//')
-echo ": ""${gcc_ver_used_to_compile_the_kernel} (version of gcc used to compile the kernel)"
-
+echo "gcc: ""${gcc_ver_used_to_compile_the_kernel} (version used to compile the kernel)"
 
 # display gcc version
 gcc_ver=$(gcc --version | grep -i gcc)
-echo ": ""${gcc_ver}"
-
+echo "gcc: ""${gcc_ver} (active version)"
 
 # display dkms version if installed
 if command -v dkms >/dev/null 2>&1; then
 	dkms_ver=$(dkms --version)
-	echo ": ""${dkms_ver}"
+	echo "dkms: ""${dkms_ver}"
 fi
-
 
 # display Secure Boot status
 if command -v mokutil >/dev/null 2>&1; then
 	case $(mokutil --sb-state 2>&1) in
-		*enabled*) echo ": SecureBoot enabled" ;;
-		*disabled*) echo ": SecureBoot disabled" ;;
-		*) echo ": This system doesn't support Secure Boot" ;;
+		*enabled*) echo "Secure Boot: enabled" ;;
+		*disabled*) echo "Secure Boot: disabled" ;;
+		*) echo "Secure Boot: not supported" ;;
 	esac
 else
-	echo ": mokutil not installed (Secure Boot status unknown)"
+	echo "Secure Boot: mokutil not installed (status unknown)"
 fi
 
 # display if VM detected
@@ -192,23 +186,30 @@ if command -v dmesg >/dev/null 2>&1; then
 	VM_detected=""
 	VM_detected=dmesg | grep -i hypervisor
 	if [ -z "$VM_detected" ]; then
-		echo ": VM not detected"
+		echo "Virtual Machine: not detected"
 	else
-		echo ": VM detected: $VM_detected"
+		echo "Virtual Machine: detected: $VM_detected"
 	fi
 # example output
 # [ 0.000000] Hypervisor detected: KVM
 fi
 
+# get country code
 # display result of `iw reg get`
 # https://docs.kernel.org/networking/regulatory.html
 # https://www.marcusfolkesson.se/blog/linux-wireless-regulatory/
 #if command -v iw >/dev/null 2>&1; then
 #	echo ": Linux Wireless Regulatory Settings:"
 #	iw reg get | grep -i 'global\|country\|phy#'
+iw reg get | grep country
 #	echo ": Info: https://docs.kernel.org/networking/regulatory.html"
 #	echo ": Info: https://www.marcusfolkesson.se/blog/linux-wireless-regulatory/"
 #fi
+
+# possible future additions
+#lsusb
+#rfkill list all
+#dkms status
 
 
 echo
