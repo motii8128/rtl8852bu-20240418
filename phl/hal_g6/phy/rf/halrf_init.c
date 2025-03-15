@@ -88,7 +88,7 @@ void halrf_cmn_info_self_init(struct rf_info *rf)
 	RF_DBG(rf, DBG_RF_INIT, "[HALRF] CONFIG_RTL8832D is defined !!\n");
 	#endif
 
-	RF_TRACE("hal_i->chip_id = %d !!\n", hal_i->chip_id);
+// nrm	RF_TRACE("hal_i->chip_id = %d !!\n", hal_i->chip_id);
 
 	if (hal_i->chip_id == CHIP_WIFI6_8852A)
 		rf->ic_type = RF_RTL8852A;
@@ -108,7 +108,7 @@ void halrf_cmn_info_self_init(struct rf_info *rf)
 		else
 			rf->ic_type = RF_RTL8852D;
 	#endif
-		RF_TRACE("hal_i->aid = 0x%x, RF_AID_RL6967A_32D = 0x%x !!\n",hal_i->aid, RF_AID_RL6967A_32D);
+// nrm		RF_TRACE("hal_i->aid = 0x%x, RF_AID_RL6967A_32D = 0x%x !!\n",hal_i->aid, RF_AID_RL6967A_32D);
 	}
 #endif
 	else if (hal_i->chip_id == CHIP_WIFI6_8852BT)
@@ -1020,7 +1020,7 @@ enum rtw_hal_status halrf_ic_cfg_init(void *rf_void)
 {
 	struct rf_info *rf = (struct rf_info *)rf_void;
 	
-	RF_TRACE("halrf_ic_cfg_init aid = 0x%x !!\n",rf->hal_com->aid );
+// nrm	RF_TRACE("halrf_ic_cfg_init aid = 0x%x !!\n",rf->hal_com->aid );
 
 	halrf_cmn_info_self_init(rf);
 	/*init. HW cap*/
