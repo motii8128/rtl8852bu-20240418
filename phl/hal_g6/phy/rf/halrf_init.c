@@ -147,7 +147,7 @@ void halrf_cmn_info_self_init(struct rf_info *rf)
 		rf->ic_type = RF_RTL8851B;
 #endif
 
-	RF_TRACE("rf->ic_type = 0x%x !!\n",rf->ic_type);
+// nrm	RF_TRACE("rf->ic_type = 0x%x !!\n",rf->ic_type);
 
 	if (rf->ic_type & RF_AX_1SS)
 		rf->num_rf_path = 1;
