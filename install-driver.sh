@@ -42,7 +42,7 @@
 # GNU General Public License for more details.
 
 SCRIPT_NAME="install-driver.sh"
-SCRIPT_VERSION="20250311"
+SCRIPT_VERSION="20250317"
 
 MODULE_NAME="8852bu"
 
@@ -64,11 +64,11 @@ KVER="$(uname -r)"
 
 MODDESTDIR="/lib/modules/${KVER}/kernel/drivers/net/wireless/"
 
-GARCH="$(uname -m | sed -e "s/i.86/i386/; s/ppc/powerpc/; s/armv.l/arm/; s/aarch64/arm64/; s/riscv.*/riscv/;")"
+# detemine what ARCH will be sent to gcc
+#GARCH="$(uname -m | sed -e "s/i.86/i386/; s/ppc/powerpc/; s/armv.l/arm/; s/aarch64/arm64/; s/riscv.*/riscv/;")"
 #if [ -z "${GARCH+1}" ]; then
 #	GARCH="$(uname -m | sed -e "s/i.86/i386/; s/ppc/powerpc/; s/armv.l/arm/; s/aarch64/arm64/; s/riscv.*/riscv/;")"
 #fi
-
 
 # check to ensure sudo or su - was used to start the script
 if [ "$(id -u)" -ne 0 ]; then
@@ -76,7 +76,6 @@ if [ "$(id -u)" -ne 0 ]; then
 	echo "Try: \"sudo ./${SCRIPT_NAME}\""
 	exit 1
 fi
-
 
 # support for the NoPrompt option allows non-interactive use of this script
 NO_PROMPT=0
@@ -96,7 +95,6 @@ do
 	shift
 done
 
-
 # set default editor
 DEFAULT_EDITOR="$(cat default-editor.txt)"
 # try to find the user's default text editor through the EDITORS_SEARCH array
@@ -111,11 +109,40 @@ if ! command -v "${TEXT_EDITOR}" >/dev/null 2>&1; then
 	exit 1
 fi
 
+# check to ensure gcc is installed
+if ! command -v gcc >/dev/null 2>&1; then
+	echo "A required package is not installed."
+	echo "Please install the following package: gcc"
+	echo "Once the package is installed, please run \"sudo ./${SCRIPT_NAME}\""
+	exit 1
+fi
 
-echo "-------------------------------------------------------------"
-# display notice
-echo "Please copy and post all lines below when reporting an issue!"
-echo "-------------------------------------------------------------"
+# ensure /usr/sbin is in the PATH so iw can be found
+if ! echo "$PATH" | grep -qw sbin; then
+        export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+fi
+
+# check to ensure iw is installed
+if ! command -v iw >/dev/null 2>&1; then
+	echo "A required package is not installed."
+	echo "Please install the following package: iw"
+	echo "Once the package is installed, please run \"sudo ./${SCRIPT_NAME}\""
+	exit 1
+fi
+
+# if NoPrompt is not used, display notice then ask if ready to continue
+if [ $NO_PROMPT -ne 1 ]; then
+echo "-----------------------------------------------------------------"
+echo "Please copy and post all displayed lines when reporting an issue!"
+echo "-----------------------------------------------------------------"
+	printf "Press any key to continue..."
+	read -r yn
+	case "$yn" in
+#	[nN]) exit ;;
+#	*) clear ;;
+	*) ;;
+	esac
+fi
 
 # displays script name and version
 echo "${SCRIPT_NAME} v${SCRIPT_VERSION}"
@@ -134,7 +161,6 @@ echo "Kernel ARCH: ${KARCH}"
 
 # display architecture to send to gcc
 #echo ": ${GARCH} (architecture to send to gcc)"
-
 
 SMEM=$(LC_ALL=C free | awk '/Mem:/ { print $2 }')
 sproc=$(nproc)
@@ -156,13 +182,15 @@ echo "Processing units: ${sproc}/$(nproc) (in-use/total)"
 # display total system memory
 echo "Memory: ${SMEM}"
 
-# display version of gcc used to compile the kernel
-gcc_ver_used_to_compile_the_kernel=$(cat /proc/version | sed 's/^.*gcc/gcc/' | sed 's/\s.*$//')
-echo "gcc: ""${gcc_ver_used_to_compile_the_kernel} (version used to compile the kernel)"
-
 # display gcc version
 gcc_ver=$(gcc --version | grep -i gcc)
-echo "gcc: ""${gcc_ver} (active version)"
+echo "gcc: ""${gcc_ver}"
+
+# display version of gcc used to compile the kernel
+#gcc_ver_used_to_compile_the_kernel=$(cat /proc/version | sed 's/^.*gcc/gcc/' | sed 's/\s.*$//')
+#if [ "${gcc_ver_used_to_compile_the_kernel}" ]; then
+#	echo "gcc: ""${gcc_ver_used_to_compile_the_kernel} (version used to compile the kernel)"
+#fi
 
 # display dkms version if installed
 if command -v dkms >/dev/null 2>&1; then
@@ -182,17 +210,17 @@ else
 fi
 
 # display if VM detected
-if command -v dmesg >/dev/null 2>&1; then
-	VM_detected=""
-	VM_detected=dmesg | grep -i hypervisor
-	if [ -z "$VM_detected" ]; then
-		echo "Virtual Machine: not detected"
-	else
-		echo "Virtual Machine: detected: $VM_detected"
-	fi
-# example output
-# [ 0.000000] Hypervisor detected: KVM
-fi
+dmesg | grep -i hypervisor
+# the following is not working well
+#if command -v dmesg >/dev/null 2>&1; then
+#	VM_detected=""
+#	VM_detected=(dmesg | grep -i hypervisor)
+#	if [ -z "$VM_detected" ]; then
+#		echo "Virtual Machine: not detected"
+#	else
+#		echo "Virtual Machine: detected"
+#	fi
+#fi
 
 # get country code
 # display result of `iw reg get`
@@ -215,15 +243,6 @@ iw reg get | grep country
 echo
 
 
-# check to ensure gcc is installed
-if ! command -v gcc >/dev/null 2>&1; then
-	echo "A required package is not installed."
-	echo "Please install the following package: gcc"
-	echo "Once the package is installed, please run \"sudo ./${SCRIPT_NAME}\""
-	exit 1
-fi
-
-
 # check to ensure bc is installed
 if ! command -v bc >/dev/null 2>&1; then
 	echo "A required package is not installed."
@@ -231,7 +250,6 @@ if ! command -v bc >/dev/null 2>&1; then
 	echo "Once the package is installed, please run \"sudo ./${SCRIPT_NAME}\""
 	exit 1
 fi
-
 
 # check to ensure make is installed
 if ! command -v make >/dev/null 2>&1; then
@@ -241,7 +259,6 @@ if ! command -v make >/dev/null 2>&1; then
 	exit 1
 fi
 
-
 # check to see if the correct header files are installed
 # - problem with fedora 40 reported
 if [ ! -d "/lib/modules/$(uname -r)/build" ]; then
@@ -250,22 +267,6 @@ if [ ! -d "/lib/modules/$(uname -r)/build" ]; then
 	echo "Once the header files are properly installed, please run \"sudo ./${SCRIPT_NAME}\""
 	exit 1
 fi
-
-
-# ensure /usr/sbin is in the PATH so iw can be found
-#if ! echo "$PATH" | grep -qw sbin; then
-#        export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-#fi
-
-
-# check to ensure iw is installed
-#if ! command -v iw >/dev/null 2>&1; then
-#	echo "A required package is not installed."
-#	echo "Please install the following package: iw"
-#	echo "Once the package is installed, please run \"sudo ./${SCRIPT_NAME}\""
-#	exit 1
-#fi
-
 
 # check to ensure rfkill is installed
 #if ! command -v rfkill >/dev/null 2>&1; then
@@ -277,7 +278,6 @@ fi
 
 
 echo "Checking for previously installed drivers..."
-
 
 # check for and uninstall non-dkms installations
 # standard naming
@@ -375,11 +375,9 @@ if ! command -v dkms >/dev/null 2>&1; then
 	if [ "$RESULT" != "0" ]; then
 		echo "An error occurred:  ${RESULT}"
 		echo "Please report this error."
-		echo "Please copy and paste the following items into the problem report."
+		echo "Please copy and post the following items into the problem report."
 		echo "    -all screen output from install-driver.sh"
 		echo "    -the contents of make.log as mentioned 3 lines above"
-		echo "    -the Linux distro and what system hardware you are using"
-		echo "     example: I am using RasPiOS with kernel 6.6 on a RasPi4B"
 		echo "You should run the following before reattempting installation."
 		echo "$ sudo ./uninstall-driver.sh"
 		exit $RESULT
@@ -408,11 +406,9 @@ if ! command -v dkms >/dev/null 2>&1; then
 	else
 		echo "An error occurred:  ${RESULT}"
 		echo "Please report this error."
-		echo "Please copy and paste the following items into the problem report."
+		echo "Please copy and post the following items into the problem report."
 		echo "    -all screen output from install-driver.sh"
 		echo "    -the contents of make.log as mentioned 3 lines above"
-		echo "    -the Linux distro and what system hardware you are using"
-		echo "     example: I am using RasPiOS with kernel 6.6 on a RasPi4B"
 		echo "You should run the following before reattempting installation."
 		echo "$ sudo ./uninstall-driver.sh"
 		exit $RESULT
@@ -442,11 +438,9 @@ else
 		else
 		echo "An error occurred:  ${RESULT}"
 		echo "Please report this error."
-		echo "Please copy and paste the following items into the problem report."
+		echo "Please copy and post the following items into the problem report."
 		echo "    -all screen output from install-driver.sh"
 		echo "    -the contents of make.log as mentioned 3 lines above"
-		echo "    -the Linux distro and what system hardware you are using"
-		echo "     example: I am using RasPiOS with kernel 6.6 on a RasPi4B"
 		echo "You should run the following before reattempting installation."
 		echo "$ sudo ./uninstall-driver.sh"
 		exit $RESULT
@@ -470,11 +464,9 @@ else
 	if [ "$RESULT" != "0" ]; then
 		echo "An error occurred:  ${RESULT}"
 		echo "Please report this error."
-		echo "Please copy and paste the following items into the problem report."
+		echo "Please copy and post the following items into the problem report."
 		echo "    -all screen output from install-driver.sh"
 		echo "    -the contents of make.log as mentioned 3 lines above"
-		echo "    -the Linux distro and what system hardware you are using"
-		echo "     example: I am using RasPiOS with kernel 6.6 on a RasPi4B"
 		echo "You should run the following before reattempting installation."
 		echo "$ sudo ./uninstall-driver.sh"
 		exit $RESULT
@@ -491,11 +483,9 @@ else
 	if [ "$RESULT" != "0" ]; then
 		echo "An error occurred:  ${RESULT}"
 		echo "Please report this error."
-		echo "Please copy and paste the following items into the problem report."
+		echo "Please copy and post the following items into the problem report."
 		echo "    -all screen output from install-driver.sh"
 		echo "    -the contents of make.log as mentioned 3 lines above"
-		echo "    -the Linux distro and what system hardware you are using"
-		echo "     example: I am using RasPiOS with kernel 6.6 on a RasPi4B"
 		echo "You should run the following before reattempting installation."
 		echo "$ sudo ./uninstall-driver.sh"
 		exit $RESULT
@@ -514,7 +504,7 @@ echo "$ sudo sh install-driver.sh"
 echo
 echo "Note: Updates to this driver SHOULD be performed before distro"
 echo "      upgrades such as Ubuntu 23.10 to 24.04."
-echo "Note: Updates to this driver SHOULD be performed before major"
+echo "Note: Updates to this driver SHOULD be performed before kernel"
 echo "      upgrades such as kernel 6.5 to 6.6."
 echo "Note: Updates can be performed as often as you like. It is"
 echo "      recommended to update at least every 3 months."

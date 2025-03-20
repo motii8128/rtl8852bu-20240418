@@ -155,7 +155,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xb852, 0xff, 0xff, 0xff), .driver_info = RTL8852B},
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xb85a, 0xff, 0xff, 0xff), .driver_info = RTL8852B},
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0xa85b, 0xff, 0xff, 0xff), .driver_info = RTL8852B},
-		/*=== Seller specific IDs ===*/
+	/*=== Seller specific IDs ===*/
 	{USB_DEVICE_AND_INTERFACE_INFO(0x0586, 0x3428, 0xff, 0xff, 0xff), .driver_info = RTL8852B}, /* ZyXEL NWD7605 */
 	{USB_DEVICE_AND_INTERFACE_INFO(0x0b05, 0x1a62, 0xff, 0xff, 0xff), .driver_info = RTL8852B}, /* ASUS USB-AX55 Nano */
 	{USB_DEVICE_AND_INTERFACE_INFO(0x0db0, 0x6931, 0xff, 0xff, 0xff), .driver_info = RTL8852B}, /* MSI AX1800 */	

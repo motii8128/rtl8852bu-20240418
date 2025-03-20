@@ -35,7 +35,6 @@ following links will provide more information:
 - Miracast
 - WiFi-Direct
 - Wake on WLAN
-- AP mode DFS channel support
 - Supported interface modes
   * IBSS (not tested)
   * Managed
@@ -89,8 +88,6 @@ which can be provided via PR or message in Issues.
 - [Debian](https://www.debian.org/) (kernels 5.10, 5.15 and 6.1)
 
 - [Fedora](https://getfedora.org) Fedora 38 (6.2.13-300)
-
-- [Kali Linux](https://www.kali.org/) (kernel 6.3)
 
 - [Manjaro](https://manjaro.org) (kernel 5.15)
 
