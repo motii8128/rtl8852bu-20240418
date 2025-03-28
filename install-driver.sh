@@ -132,16 +132,17 @@ fi
 
 # if NoPrompt is not used, display notice then ask if ready to continue
 if [ $NO_PROMPT -ne 1 ]; then
-echo "-----------------------------------------------------------------"
-echo "Please copy and post all displayed lines when reporting an issue!"
-echo "-----------------------------------------------------------------"
-	printf "Press any key to continue..."
+	echo "-----------------------------------------------------------------"
+	echo "Please copy and post all displayed lines when reporting an issue!"
+	echo "-----------------------------------------------------------------"
+	printf "Press Enter to continue..."
 	read -r yn
 	case "$yn" in
-#	[nN]) exit ;;
-#	*) clear ;;
-	*) ;;
+#		[nN]) exit ;;
+#		*) clear ;;
+		*) ;;
 	esac
+	echo
 fi
 
 # displays script name and version
