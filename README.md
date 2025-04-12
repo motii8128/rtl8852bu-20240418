@@ -47,9 +47,9 @@ following links will provide more information:
 
 > [!NOTE]
 > Monitor mode is not supported.
-> Linux users that want good support for monitor mode in a dual band or tri-band
-> adapter should seek out USB WiFi adapters based on the mt7610u, mt7612u or mt7921au
-> chipsets.
+> Linux users that want good support for monitor mode in a dual band or
+> tri-band adapter should seek out USB WiFi adapters based on the
+> mt7610u, mt7612u or mt7921au chipsets.
 
 ### A FAQ is available in this repo with the name `FAQ.md`
 
