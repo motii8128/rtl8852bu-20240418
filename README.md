@@ -646,7 +646,7 @@ The driver directory can be deleted after running this script.
 #### Step 2: Move to the driver directory
 
 ```
-cd ~/src/rtl8852bu
+cd ~/src/rtl8852bu-20240418
 ```
 
 #### Step 3: Run the removal script
