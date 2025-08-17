@@ -1,5 +1,23 @@
 ## rtl8852bu ( 8852bu.ko ) :rocket:
 
+# インストール案内
+```
+sudo apt update
+sudo apt install iw
+```
+
+```
+sudo ./install_driver.sh
+```
+再起動する
+```
+sudo reboot
+```
+モジュールを起動する
+```
+sudo modprobe 8852cu
+```
+
 ## Linux Driver for USB WiFi Adapters that are based on the RTL8832BU and RTL8852BU Chipsets
 
 - v1.19.14-127 - 20240418 plus updates from the Linux community
